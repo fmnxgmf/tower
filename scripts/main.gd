@@ -1,4 +1,4 @@
-﻿extends Node2D
+extends Node2D
 
 @onready var gold_label: Label = $UI/Panel/TopBar/GoldLabel
 @onready var health_label: Label = $UI/Panel/TopBar/HealthLabel
@@ -86,8 +86,14 @@ func _tower_defs() -> Dictionary:
     var defs := {}
     for tower_type in tower_scenes.keys():
         var balance = wave_spawner.get_tower_balance(tower_type)
+        var chinese_name: String = {
+            "basic": "基础塔",
+            "slow": "减速塔",
+            "aoe": "范围塔",
+            "sniper": "狙击塔"
+        }.get(tower_type, tower_type)
         defs[tower_type] = {
-            "label": "%s $%d" % [tower_type.capitalize(), int(balance.get("cost", 0))],
+            "label": "%s $%d" % [chinese_name, int(balance.get("cost", 0))],
             "cost": int(balance.get("cost", 0)),
             "info": String(balance.get("info", ""))
         }
@@ -99,9 +105,9 @@ func _show_start_overlay() -> void:
     result_overlay.visible = false
     pause_overlay.visible = false
     next_level_button.visible = false
-    start_title_label.text = "Tower Defense"
-    start_level_label.text = "Level: %s" % level_data.get("name", "Unknown")
-    status_label.text = "Press Start Game to begin."
+    start_title_label.text = "塔防游戏"
+    start_level_label.text = "关卡: %s" % level_data.get("name", "未知")
+    status_label.text = "点击开始游戏进入战斗。"
     GameManager.set_paused(false)
     get_tree().paused = false
     _refresh_ui()
@@ -129,7 +135,7 @@ func _start_level(level_index: int = -1) -> void:
     game_started = true
     start_wave_button.disabled = false
     _refresh_ui()
-    status_label.text = "Build your defenses for %s." % level_data.get("name", "this level")
+    status_label.text = "为 %s 布置防线。" % level_data.get("name", "当前关卡")
 
 func _clear_battlefield() -> void:
     for node: Node in tower_container.get_children():
@@ -166,11 +172,11 @@ func _connect_game_manager() -> void:
 
 func _refresh_ui() -> void:
     var level_data: Dictionary = level_manager.get_current_level()
-    gold_label.text = "Gold: %d" % GameManager.gold
-    health_label.text = "Health: %d" % GameManager.health
-    wave_label.text = "Wave: %d/%d" % [GameManager.current_wave, GameManager.TOTAL_WAVES]
-    level_label.text = "Level: %s" % level_data.get("name", "Unknown")
-    pause_button.text = "Resume" if GameManager.game_state == "PAUSED" else "Pause"
+    gold_label.text = "金币: %d" % GameManager.gold
+    health_label.text = "生命: %d" % GameManager.health
+    wave_label.text = "波次: %d/%d" % [GameManager.current_wave, GameManager.TOTAL_WAVES]
+    level_label.text = "关卡: %s" % level_data.get("name", "未知")
+    pause_button.text = "继续" if GameManager.game_state == "PAUSED" else "暂停"
     tower_info_panel.visible = true
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -193,10 +199,10 @@ func _try_build_at(world_pos: Vector2) -> void:
         return
     var data: Dictionary = defs[selected_tower_type]
     if not GameManager.can_afford(int(data.cost)):
-        status_label.text = "Not enough gold for %s." % selected_tower_type.capitalize()
+        status_label.text = "%s 金币不足。" % data.label
         return
     if not game_map.can_build_at(cell):
-        status_label.text = "That placement would block the path."
+        status_label.text = "该位置会堵死路径，无法建造。"
         return
     var tower = tower_scenes[selected_tower_type].instantiate()
     tower_container.add_child(tower)
@@ -212,7 +218,7 @@ func _try_build_at(world_pos: Vector2) -> void:
     for enemy: Node in get_tree().get_nodes_in_group("enemies"):
         if enemy.has_method("update_path"):
             enemy.update_path()
-    status_label.text = "%s built." % selected_tower_type.capitalize()
+    status_label.text = "%s 已建造。" % data.label
 
 func _on_start_game_pressed() -> void:
     _start_level(level_manager.current_level_index)
@@ -240,7 +246,7 @@ func _resume_from_overlay() -> void:
 
 func spawn_enemy(enemy_type: String) -> void:
     if not wave_spawner.enemy_scenes.has(enemy_type):
-        push_warning("Unknown enemy type requested: %s" % enemy_type)
+        push_warning("未知敌人类型: %s" % enemy_type)
         return
     var scene: PackedScene = wave_spawner.enemy_scenes[enemy_type]
     var enemy = scene.instantiate()
@@ -250,10 +256,10 @@ func spawn_enemy(enemy_type: String) -> void:
     enemy.enemy_died.connect(func(reward: int) -> void: GameManager.add_gold(reward))
 
 func _on_wave_started(wave_number: int) -> void:
-    status_label.text = "Wave %d started." % wave_number
+    status_label.text = "第 %d 波开始。" % wave_number
 
 func _on_wave_completed(wave_number: int) -> void:
-    status_label.text = "Wave %d cleared." % wave_number
+    status_label.text = "第 %d 波已清除。" % wave_number
     start_wave_button.disabled = false
 
 func _on_all_waves_completed() -> void:
@@ -265,7 +271,7 @@ func _on_game_over(won: bool) -> void:
     result_overlay.visible = true
     pause_overlay.visible = false
     next_level_button.visible = won and active_level_index < level_manager.levels.size() - 1
-    result_label.text = "Victory!" if won else "Defeat!"
+    result_label.text = "胜利！" if won else "失败！"
     status_label.text = result_label.text
     if won and active_level_index < level_manager.levels.size() - 1:
         level_manager.current_level_index = active_level_index + 1

@@ -22,6 +22,7 @@ script = ExtResource("3")
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="Panel" type="Panel" parent="UI"]
+mouse_filter = 2
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 800.0
@@ -35,23 +36,23 @@ offset_bottom = 44.0
 theme_override_constants/separation = 24
 
 [node name="GoldLabel" type="Label" parent="UI/Panel/TopBar"]
-text = "Gold: 500"
+text = "金币: 500"
 
 [node name="HealthLabel" type="Label" parent="UI/Panel/TopBar"]
-text = "Health: 20"
+text = "生命: 20"
 
 [node name="WaveLabel" type="Label" parent="UI/Panel/TopBar"]
-text = "Wave: 0/10"
+text = "波次: 0/10"
 
 [node name="LevelLabel" type="Label" parent="UI/Panel/TopBar"]
-text = "Level: Grassland Gate"
+text = "关卡: 草原关口"
 
 [node name="StatusLabel" type="Label" parent="UI/Panel"]
 offset_left = 16.0
 offset_top = 48.0
 offset_right = 760.0
 offset_bottom = 72.0
-text = "Prepare your defenses."
+text = "准备布置你的防线。"
 
 [node name="TowerInfoPanel" type="Panel" parent="UI/Panel"]
 offset_left = 592.0
@@ -64,7 +65,7 @@ offset_left = 12.0
 offset_top = 12.0
 offset_right = 176.0
 offset_bottom = 88.0
-text = "Basic $100\nBalanced single-target tower."
+text = "基础塔 $100\n均衡的单体输出防御塔。"
 autowrap_mode = 3
 
 [node name="BottomBar" type="HBoxContainer" parent="UI/Panel"]
@@ -75,10 +76,10 @@ offset_bottom = 584.0
 theme_override_constants/separation = 12
 
 [node name="StartWaveButton" type="Button" parent="UI/Panel/BottomBar"]
-text = "Start Wave"
+text = "开始波次"
 
 [node name="PauseButton" type="Button" parent="UI/Panel/BottomBar"]
-text = "Pause"
+text = "暂停"
 
 [node name="TowerButtons" type="HBoxContainer" parent="UI/Panel/BottomBar"]
 size_flags_horizontal = 3
@@ -103,15 +104,15 @@ offset_bottom = 80.0
 theme_override_constants/separation = 12
 
 [node name="StartTitleLabel" type="Label" parent="UI/StartOverlay/Center"]
-text = "Tower Defense"
+text = "塔防游戏"
 horizontal_alignment = 1
 
 [node name="StartLevelLabel" type="Label" parent="UI/StartOverlay/Center"]
-text = "Level: Grassland Gate"
+text = "关卡: 草原关口"
 horizontal_alignment = 1
 
 [node name="StartGameButton" type="Button" parent="UI/StartOverlay/Center"]
-text = "Start Game"
+text = "开始游戏"
 
 [node name="ResultOverlay" type="ColorRect" parent="UI"]
 visible = false
@@ -132,14 +133,14 @@ offset_bottom = 80.0
 theme_override_constants/separation = 12
 
 [node name="ResultLabel" type="Label" parent="UI/ResultOverlay/Center"]
-text = "Victory!"
+text = "胜利！"
 horizontal_alignment = 1
 
 [node name="NextLevelButton" type="Button" parent="UI/ResultOverlay/Center"]
-text = "Next Level"
+text = "下一关"
 
 [node name="RestartButton" type="Button" parent="UI/ResultOverlay/Center"]
-text = "Restart"
+text = "重新开始"
 
 [node name="PauseOverlay" type="ColorRect" parent="UI"]
 visible = false
@@ -160,8 +161,8 @@ offset_bottom = 50.0
 theme_override_constants/separation = 12
 
 [node name="PauseLabel" type="Label" parent="UI/PauseOverlay/Center"]
-text = "Paused"
+text = "已暂停"
 horizontal_alignment = 1
 
 [node name="ResumeButton" type="Button" parent="UI/PauseOverlay/Center"]
-text = "Resume"
+text = "继续"

@@ -87,6 +87,11 @@ func run() -> Array[String]:
     for node_path in ui_paths:
         if main.get_node_or_null(node_path) == null:
             failures.append("missing UI node %s" % node_path)
+    var root_panel = main.get_node_or_null("UI/Panel")
+    if root_panel == null:
+        failures.append("missing root UI panel")
+    elif root_panel.mouse_filter != Control.MOUSE_FILTER_IGNORE:
+        failures.append("root UI panel should ignore mouse so map clicks can place towers")
 
     if failures.is_empty():
         manager.reset()
