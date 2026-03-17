@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/towers/tower_base.tscn" id="1"]
+
+[node name="BasicTower" instance=ExtResource("1")]
+damage = 15.0
+attack_range = 100.0
+attack_speed = 1.0
+cost = 100
+tower_color = Color(0.3, 0.55, 0.95, 1)
+tower_kind = "basic"

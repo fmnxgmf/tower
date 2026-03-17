@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1"]
+
+[node name="FlyingEnemy" instance=ExtResource("1")]
+max_health = 80.0
+move_speed = 100.0
+gold_reward = 20
+is_flying = true
+enemy_color = Color(0.25, 0.5, 0.95, 1)

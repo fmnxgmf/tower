@@ -1,0 +1,68 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/game_map.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/wave_spawner.gd" id="3"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1")
+
+[node name="GameMap" type="Node2D" parent="."]
+script = ExtResource("2")
+
+[node name="TowerContainer" type="Node2D" parent="."]
+
+[node name="EnemyContainer" type="Node2D" parent="."]
+
+[node name="ProjectileContainer" type="Node2D" parent="."]
+
+[node name="WaveSpawner" type="Node" parent="."]
+script = ExtResource("3")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="Panel" parent="UI"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 800.0
+offset_bottom = 600.0
+
+[node name="TopBar" type="HBoxContainer" parent="UI/Panel"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 520.0
+offset_bottom = 44.0
+theme_override_constants/separation = 24
+
+[node name="GoldLabel" type="Label" parent="UI/Panel/TopBar"]
+text = "Gold: 500"
+
+[node name="HealthLabel" type="Label" parent="UI/Panel/TopBar"]
+text = "Health: 20"
+
+[node name="WaveLabel" type="Label" parent="UI/Panel/TopBar"]
+text = "Wave: 0/10"
+
+[node name="StatusLabel" type="Label" parent="UI/Panel"]
+offset_left = 16.0
+offset_top = 48.0
+offset_right = 760.0
+offset_bottom = 72.0
+text = "Prepare your defenses."
+
+[node name="BottomBar" type="HBoxContainer" parent="UI/Panel"]
+offset_left = 16.0
+offset_top = 548.0
+offset_right = 784.0
+offset_bottom = 584.0
+theme_override_constants/separation = 12
+
+[node name="StartWaveButton" type="Button" parent="UI/Panel/BottomBar"]
+text = "Start Wave"
+
+[node name="PauseButton" type="Button" parent="UI/Panel/BottomBar"]
+text = "Pause"
+
+[node name="TowerButtons" type="HBoxContainer" parent="UI/Panel/BottomBar"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 8

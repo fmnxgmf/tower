@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1"]
+
+[node name="RegenEnemy" instance=ExtResource("1")]
+max_health = 150.0
+move_speed = 80.0
+gold_reward = 25
+regen_per_second = 5.0
+enemy_color = Color(0.7, 0.3, 0.8, 1)

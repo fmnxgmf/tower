@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/towers/tower_base.tscn" id="1"]
+
+[node name="SniperTower" instance=ExtResource("1")]
+damage = 50.0
+attack_range = 200.0
+attack_speed = 0.33
+cost = 250
+tower_color = Color(0.15, 0.15, 0.15, 1)
+tower_kind = "sniper"

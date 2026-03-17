@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1"]
+
+[node name="TankEnemy" instance=ExtResource("1")]
+max_health = 300.0
+move_speed = 50.0
+gold_reward = 30
+enemy_color = Color(0.45, 0.45, 0.45, 1)

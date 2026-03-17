@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1"]
+
+[node name="FastEnemy" instance=ExtResource("1")]
+max_health = 50.0
+move_speed = 150.0
+gold_reward = 10
+enemy_color = Color(0.2, 0.8, 0.2, 1)
