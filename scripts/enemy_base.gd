@@ -10,6 +10,7 @@ signal enemy_died(reward: int)
 @export var enemy_color: Color = Color(0.2, 0.8, 0.2)
 @export var enemy_size: Vector2 = Vector2(20, 20)
 @export var regen_per_second: float = 0.0
+@export var death_fade_duration: float = 0.35
 
 var current_health: float = 100.0
 var path: Array[Vector2i] = []
@@ -17,6 +18,8 @@ var path_index: int = 0
 var map_ref: Node = null
 var slow_multiplier: float = 1.0
 var slow_time_left: float = 0.0
+var is_dying: bool = false
+var death_fade_time_left: float = 0.0
 
 func _ready() -> void:
     current_health = max_health
@@ -33,6 +36,7 @@ func setup_enemy(game_map: Node, enemy_data: Dictionary) -> void:
     enemy_color = enemy_data.get("color", enemy_color)
     current_health = max_health
     global_position = map_ref.cell_to_world(map_ref.start_cell)
+    modulate.a = 1.0
     update_path()
     queue_redraw()
 
@@ -46,14 +50,29 @@ func apply_slow(multiplier: float, duration: float) -> void:
     slow_multiplier = min(slow_multiplier, multiplier)
     slow_time_left = max(slow_time_left, duration)
 
+func start_death_fade() -> void:
+    if is_dying:
+        return
+    is_dying = true
+    death_fade_time_left = death_fade_duration
+    velocity = Vector2.ZERO
+    enemy_died.emit(gold_reward)
+
 func take_damage(amount: float) -> void:
+    if is_dying:
+        return
     current_health = max(current_health - amount, 0.0)
     queue_redraw()
     if current_health <= 0.0:
-        enemy_died.emit(gold_reward)
-        queue_free()
+        start_death_fade()
 
 func _process(delta: float) -> void:
+    if is_dying:
+        death_fade_time_left -= delta
+        modulate.a = max(death_fade_time_left / max(death_fade_duration, 0.001), 0.0)
+        if death_fade_time_left <= 0.0:
+            queue_free()
+        return
     if regen_per_second > 0.0 and current_health > 0.0:
         current_health = min(max_health, current_health + regen_per_second * delta)
         queue_redraw()
@@ -63,6 +82,8 @@ func _process(delta: float) -> void:
             slow_multiplier = 1.0
 
 func _physics_process(delta: float) -> void:
+    if is_dying:
+        return
     if path.is_empty() or path_index >= path.size():
         if map_ref != null and global_position.distance_to(map_ref.cell_to_world(map_ref.end_cell)) <= 8.0:
             reached_goal.emit()

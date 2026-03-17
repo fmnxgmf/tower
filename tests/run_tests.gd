@@ -6,6 +6,7 @@ func _init() -> void:
     await process_frame
     _run_suite("res://tests/test_project_bootstrap.gd")
     _run_suite("res://tests/test_core_logic.gd")
+    _run_suite("res://tests/test_edge_cases.gd")
     if failures.is_empty():
         print("TESTS PASSED")
         quit(0)

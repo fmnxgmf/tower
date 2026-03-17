@@ -1,4 +1,4 @@
-extends RefCounted
+﻿extends RefCounted
 
 func run() -> Array[String]:
     var failures: Array[String] = []
@@ -11,12 +11,10 @@ func run() -> Array[String]:
         "res://scripts/enemy_base.gd",
         "res://scripts/tower_base.gd",
         "res://scripts/projectile.gd",
-        "res://scripts/wave_spawner.gd"
+        "res://scripts/wave_spawner.gd",
+        "res://scripts/level_manager.gd"
     ]
-
     for path in required_paths:
         if not FileAccess.file_exists(path):
             failures.append("missing required file %s" % path)
-
     return failures
-

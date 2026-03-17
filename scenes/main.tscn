@@ -30,7 +30,7 @@ offset_bottom = 600.0
 [node name="TopBar" type="HBoxContainer" parent="UI/Panel"]
 offset_left = 16.0
 offset_top = 12.0
-offset_right = 520.0
+offset_right = 720.0
 offset_bottom = 44.0
 theme_override_constants/separation = 24
 
@@ -43,12 +43,29 @@ text = "Health: 20"
 [node name="WaveLabel" type="Label" parent="UI/Panel/TopBar"]
 text = "Wave: 0/10"
 
+[node name="LevelLabel" type="Label" parent="UI/Panel/TopBar"]
+text = "Level: Grassland Gate"
+
 [node name="StatusLabel" type="Label" parent="UI/Panel"]
 offset_left = 16.0
 offset_top = 48.0
 offset_right = 760.0
 offset_bottom = 72.0
 text = "Prepare your defenses."
+
+[node name="TowerInfoPanel" type="Panel" parent="UI/Panel"]
+offset_left = 592.0
+offset_top = 80.0
+offset_right = 784.0
+offset_bottom = 180.0
+
+[node name="TowerInfoLabel" type="Label" parent="UI/Panel/TowerInfoPanel"]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 176.0
+offset_bottom = 88.0
+text = "Basic $100\nBalanced single-target tower."
+autowrap_mode = 3
 
 [node name="BottomBar" type="HBoxContainer" parent="UI/Panel"]
 offset_left = 16.0
@@ -66,3 +83,85 @@ text = "Pause"
 [node name="TowerButtons" type="HBoxContainer" parent="UI/Panel/BottomBar"]
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
+
+[node name="StartOverlay" type="ColorRect" parent="UI"]
+visible = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.07, 0.09, 0.86)
+
+[node name="Center" type="VBoxContainer" parent="UI/StartOverlay"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = -80.0
+offset_right = 120.0
+offset_bottom = 80.0
+theme_override_constants/separation = 12
+
+[node name="StartTitleLabel" type="Label" parent="UI/StartOverlay/Center"]
+text = "Tower Defense"
+horizontal_alignment = 1
+
+[node name="StartLevelLabel" type="Label" parent="UI/StartOverlay/Center"]
+text = "Level: Grassland Gate"
+horizontal_alignment = 1
+
+[node name="StartGameButton" type="Button" parent="UI/StartOverlay/Center"]
+text = "Start Game"
+
+[node name="ResultOverlay" type="ColorRect" parent="UI"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.03, 0.03, 0.03, 0.82)
+
+[node name="Center" type="VBoxContainer" parent="UI/ResultOverlay"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = -80.0
+offset_right = 120.0
+offset_bottom = 80.0
+theme_override_constants/separation = 12
+
+[node name="ResultLabel" type="Label" parent="UI/ResultOverlay/Center"]
+text = "Victory!"
+horizontal_alignment = 1
+
+[node name="NextLevelButton" type="Button" parent="UI/ResultOverlay/Center"]
+text = "Next Level"
+
+[node name="RestartButton" type="Button" parent="UI/ResultOverlay/Center"]
+text = "Restart"
+
+[node name="PauseOverlay" type="ColorRect" parent="UI"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.05, 0.08, 0.72)
+
+[node name="Center" type="VBoxContainer" parent="UI/PauseOverlay"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -50.0
+offset_right = 100.0
+offset_bottom = 50.0
+theme_override_constants/separation = 12
+
+[node name="PauseLabel" type="Label" parent="UI/PauseOverlay/Center"]
+text = "Paused"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="UI/PauseOverlay/Center"]
+text = "Resume"
