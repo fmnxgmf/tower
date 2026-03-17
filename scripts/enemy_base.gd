@@ -107,3 +107,12 @@ func _draw() -> void:
     var ratio: float = 0.0 if max_health <= 0.0 else current_health / max_health
     draw_rect(Rect2(Vector2(-enemy_size.x / 2.0, -enemy_size.y / 2.0 - 6.0), Vector2(enemy_size.x, 4.0)), Color(0.2, 0.1, 0.1), true)
     draw_rect(Rect2(Vector2(-enemy_size.x / 2.0, -enemy_size.y / 2.0 - 6.0), Vector2(enemy_size.x * ratio, 4.0)), Color(0.2, 0.9, 0.3), true)
+
+func get_current_health_debug() -> Dictionary:
+    return {
+        "current_health": current_health,
+        "max_health": max_health,
+        "slow_multiplier": slow_multiplier,
+        "slow_time_left": slow_time_left,
+        "is_dying": is_dying
+    }

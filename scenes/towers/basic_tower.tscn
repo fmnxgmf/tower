@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/towers/tower_base.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/basic_tower.gd" id="2"]
 
 [node name="BasicTower" instance=ExtResource("1")]
+script = ExtResource("2")
 damage = 15.0
 attack_range = 100.0
 attack_speed = 1.0

@@ -27,6 +27,7 @@ extends Node2D
 @onready var wave_spawner = $WaveSpawner
 
 var selected_tower_type: String = "basic"
+var tower_scene: PackedScene = preload("res://scenes/towers/tower_base.tscn")
 var tower_scenes := {
     "basic": preload("res://scenes/towers/basic_tower.tscn"),
     "slow": preload("res://scenes/towers/slow_tower.tscn"),
@@ -95,7 +96,13 @@ func _tower_defs() -> Dictionary:
         defs[tower_type] = {
             "label": "%s $%d" % [chinese_name, int(balance.get("cost", 0))],
             "cost": int(balance.get("cost", 0)),
-            "info": String(balance.get("info", ""))
+            "info": String(balance.get("info", "")),
+            "color": {
+                "basic": Color(0.3, 0.55, 0.95, 1),
+                "slow": Color(0.9, 0.8, 0.2, 1),
+                "aoe": Color(0.9, 0.35, 0.3, 1),
+                "sniper": Color(0.15, 0.15, 0.15, 1)
+            }.get(tower_type, Color(0.4, 0.6, 0.9, 1))
         }
     return defs
 
@@ -156,8 +163,11 @@ func _build_tower_buttons() -> void:
     for tower_type: String in defs.keys():
         var button := Button.new()
         button.text = defs[tower_type].label
-        button.pressed.connect(func() -> void: _select_tower(tower_type))
+        button.pressed.connect(_on_tower_button_pressed.bind(tower_type))
         tower_button_container.add_child(button)
+
+func _on_tower_button_pressed(tower_type: String) -> void:
+    _select_tower(tower_type)
 
 func _select_tower(tower_type: String) -> void:
     selected_tower_type = tower_type
@@ -204,15 +214,20 @@ func _try_build_at(world_pos: Vector2) -> void:
     if not game_map.can_build_at(cell):
         status_label.text = "该位置会堵死路径，无法建造。"
         return
-    var tower = tower_scenes[selected_tower_type].instantiate()
+    var tower = tower_scene.instantiate()
     tower_container.add_child(tower)
     var balance = wave_spawner.get_tower_balance(selected_tower_type)
+    tower.tower_kind = selected_tower_type
     tower.damage = float(balance.get("damage", tower.damage))
     tower.attack_range = float(balance.get("range", tower.attack_range))
     tower.attack_speed = float(balance.get("speed", tower.attack_speed))
     tower.cost = int(balance.get("cost", tower.cost))
+    tower.tower_color = data.color
     tower.global_position = game_map.cell_to_world(cell)
     tower.setup(projectile_container)
+    if tower.has_method("configure_attack"):
+        tower.configure_attack(selected_tower_type)
+    tower.queue_redraw()
     game_map.occupy_cell(cell)
     GameManager.spend_gold(int(data.cost))
     for enemy: Node in get_tree().get_nodes_in_group("enemies"):

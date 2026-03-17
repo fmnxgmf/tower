@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/towers/tower_base.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/aoe_tower.gd" id="2"]
 
 [node name="AoeTower" instance=ExtResource("1")]
+script = ExtResource("2")
 damage = 8.0
 attack_range = 90.0
 attack_speed = 1.5
