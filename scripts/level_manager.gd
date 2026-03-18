@@ -1,15 +1,15 @@
-﻿extends RefCounted
+extends RefCounted
 
 var levels: Array[Dictionary] = [
     {
-        "name": "Grassland Gate",
+        "name_key": "level.grassland_gate",
         "starting_gold": 500,
         "starting_health": 20,
         "wave_bonus": 50,
         "waves": 10
     },
     {
-        "name": "Iron Crossroads",
+        "name_key": "level.iron_crossroads",
         "starting_gold": 650,
         "starting_health": 18,
         "wave_bonus": 60,
@@ -25,7 +25,7 @@ func set_save_path(path: String) -> void:
 func get_current_level() -> Dictionary:
     if levels.is_empty():
         return {}
-    return levels[clampi(current_level_index, 0, levels.size() - 1)]
+    return levels[clampi(current_level_index, 0, levels.size() - 1)].duplicate(true)
 
 func advance_level() -> void:
     if current_level_index < levels.size() - 1:

@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 
 func run() -> Array[String]:
     var failures: Array[String] = []
@@ -18,6 +18,19 @@ func run() -> Array[String]:
         failures.append("GameManager is missing spend_gold()")
     if not manager.has_method("damage_base"):
         failures.append("GameManager is missing damage_base()")
+
+    var localization_script = load("res://scripts/localization_manager.gd")
+    if localization_script == null:
+        failures.append("localization_manager.gd did not load")
+        return failures
+    var localization = localization_script.new()
+    if localization == null:
+        failures.append("LocalizationManager could not be instantiated")
+        return failures
+    if not localization.has_method("set_language"):
+        failures.append("LocalizationManager is missing set_language()")
+    if not localization.has_method("text"):
+        failures.append("LocalizationManager is missing text()")
 
     var pathfinding_script = load("res://scripts/pathfinding.gd")
     if pathfinding_script == null:
@@ -82,7 +95,8 @@ func run() -> Array[String]:
         "UI/StartOverlay",
         "UI/ResultOverlay",
         "UI/PauseOverlay",
-        "UI/Panel/TowerInfoPanel"
+        "UI/Panel/TowerInfoPanel",
+        "UI/StartOverlay/Center/LanguageRow/LanguageOption"
     ]
     for node_path in ui_paths:
         if main.get_node_or_null(node_path) == null:
@@ -92,6 +106,38 @@ func run() -> Array[String]:
         failures.append("missing root UI panel")
     elif root_panel.mouse_filter != Control.MOUSE_FILTER_IGNORE:
         failures.append("root UI panel should ignore mouse so map clicks can place towers")
+
+    var gold_label = main.get_node_or_null("UI/Panel/TopBar/GoldLabel")
+    if gold_label == null:
+        failures.append("missing gold label")
+    elif gold_label.text != "金币: 500":
+        failures.append("gold label should default to Chinese text")
+
+    var start_title_label = main.get_node_or_null("UI/StartOverlay/Center/StartTitleLabel")
+    if start_title_label == null:
+        failures.append("missing start title label")
+    elif start_title_label.text != "塔防游戏":
+        failures.append("start title should default to Chinese text")
+
+    var language_label = main.get_node_or_null("UI/StartOverlay/Center/LanguageRow/LanguageLabel")
+    if language_label == null:
+        failures.append("missing language label")
+    elif language_label.text != "语言":
+        failures.append("language selector label should default to Chinese text")
+
+    if localization.text("ui.game_title") != "塔防游戏":
+        failures.append("Chinese translation should resolve the game title")
+    localization.set_language("en", false)
+    if localization.text("ui.game_title") != "Tower Defense":
+        failures.append("English translation should resolve the game title")
+
+    var first_level: Dictionary = level_manager.get_current_level()
+    if String(first_level.get("name_key", "")) != "level.grassland_gate":
+        failures.append("first level should store a localization key")
+
+    var basic_tower_info_key = String(spawner.get_tower_balance("basic").get("info_key", ""))
+    if basic_tower_info_key != "tower.basic.info":
+        failures.append("basic tower should store a localization info key")
 
     if failures.is_empty():
         manager.reset()
@@ -132,9 +178,6 @@ func run() -> Array[String]:
         level_manager.current_level_index = 0
         level_manager.save_progress()
         level_manager.load_progress()
-        var first_level: Dictionary = level_manager.get_current_level()
-        if first_level.is_empty():
-            failures.append("expected current level data")
         var original_index: int = level_manager.current_level_index
         level_manager.advance_level()
         if level_manager.current_level_index <= original_index:

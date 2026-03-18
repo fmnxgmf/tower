@@ -48,7 +48,7 @@ text = "波次: 0/10"
 
 [node name="LevelLabel" type="Label" parent="UI/Panel/TopBar" unique_id=1497759330]
 layout_mode = 2
-text = "关卡: 草原关口"
+text = "关卡: 草原关隘"
 
 [node name="StatusLabel" type="Label" parent="UI/Panel" unique_id=1159474852]
 layout_mode = 0
@@ -56,7 +56,7 @@ offset_left = 16.0
 offset_top = 48.0
 offset_right = 760.0
 offset_bottom = 72.0
-text = "准备布置你的防线。"
+text = "点燃战旗，准备守住关隘。"
 
 [node name="TowerInfoPanel" type="Panel" parent="UI/Panel" unique_id=1588324026]
 layout_mode = 0
@@ -71,8 +71,7 @@ offset_left = 12.0
 offset_top = 12.0
 offset_right = 176.0
 offset_bottom = 88.0
-text = "基础塔 $100
-均衡的单体输出防御塔。"
+text = "基础塔 $100\n均衡的单体输出防御塔。"
 autowrap_mode = 3
 
 [node name="BottomBar" type="HBoxContainer" parent="UI/Panel" unique_id=1236520917]
@@ -108,10 +107,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -120.0
-offset_top = -80.0
-offset_right = 120.0
-offset_bottom = 80.0
+offset_left = -140.0
+offset_top = -110.0
+offset_right = 140.0
+offset_bottom = 110.0
 theme_override_constants/separation = 12
 
 [node name="StartTitleLabel" type="Label" parent="UI/StartOverlay/Center" unique_id=1144908473]
@@ -121,8 +120,20 @@ horizontal_alignment = 1
 
 [node name="StartLevelLabel" type="Label" parent="UI/StartOverlay/Center" unique_id=2023634331]
 layout_mode = 2
-text = "关卡: 草原关口"
+text = "关卡: 草原关隘"
 horizontal_alignment = 1
+
+[node name="LanguageRow" type="HBoxContainer" parent="UI/StartOverlay/Center"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LanguageLabel" type="Label" parent="UI/StartOverlay/Center/LanguageRow"]
+layout_mode = 2
+text = "语言"
+
+[node name="LanguageOption" type="OptionButton" parent="UI/StartOverlay/Center/LanguageRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 0)
 
 [node name="StartGameButton" type="Button" parent="UI/StartOverlay/Center" unique_id=260123858]
 layout_mode = 2
@@ -149,7 +160,7 @@ theme_override_constants/separation = 12
 
 [node name="ResultLabel" type="Label" parent="UI/ResultOverlay/Center" unique_id=511468630]
 layout_mode = 2
-text = "胜利！"
+text = "守关告捷！"
 horizontal_alignment = 1
 
 [node name="NextLevelButton" type="Button" parent="UI/ResultOverlay/Center" unique_id=542750580]
@@ -181,7 +192,7 @@ theme_override_constants/separation = 12
 
 [node name="PauseLabel" type="Label" parent="UI/PauseOverlay/Center" unique_id=2095269833]
 layout_mode = 2
-text = "已暂停"
+text = "战局暂停"
 horizontal_alignment = 1
 
 [node name="ResumeButton" type="Button" parent="UI/PauseOverlay/Center" unique_id=194442375]

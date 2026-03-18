@@ -13,12 +13,15 @@ extends Node2D
 @onready var start_overlay: Control = $UI/StartOverlay
 @onready var start_title_label: Label = $UI/StartOverlay/Center/StartTitleLabel
 @onready var start_level_label: Label = $UI/StartOverlay/Center/StartLevelLabel
+@onready var language_label: Label = $UI/StartOverlay/Center/LanguageRow/LanguageLabel
+@onready var language_option: OptionButton = $UI/StartOverlay/Center/LanguageRow/LanguageOption
 @onready var start_game_button: Button = $UI/StartOverlay/Center/StartGameButton
 @onready var result_overlay: Control = $UI/ResultOverlay
 @onready var result_label: Label = $UI/ResultOverlay/Center/ResultLabel
 @onready var next_level_button: Button = $UI/ResultOverlay/Center/NextLevelButton
 @onready var restart_button: Button = $UI/ResultOverlay/Center/RestartButton
 @onready var pause_overlay: Control = $UI/PauseOverlay
+@onready var pause_label: Label = $UI/PauseOverlay/Center/PauseLabel
 @onready var resume_button: Button = $UI/PauseOverlay/Center/ResumeButton
 @onready var game_map: Node2D = $GameMap
 @onready var tower_container: Node2D = $TowerContainer
@@ -39,12 +42,16 @@ var projectile_pool: Array[Node2D] = []
 var level_manager = preload("res://scripts/level_manager.gd").new()
 var game_started: bool = false
 var active_level_index: int = 0
+var current_status_key: String = "status.start_prompt"
+var current_status_args: Array = []
+var current_result_key: String = "status.win"
 
 func _ready() -> void:
     level_manager.load_progress()
     active_level_index = level_manager.current_level_index
     projectile_container.set_meta("pool_owner", self)
     build_projectile_pool(24)
+    _populate_language_options()
     _build_tower_buttons()
     _connect_game_manager()
     wave_spawner.wave_started.connect(_on_wave_started)
@@ -56,6 +63,8 @@ func _ready() -> void:
     restart_button.pressed.connect(_restart_current_level)
     next_level_button.pressed.connect(_on_next_level_pressed)
     resume_button.pressed.connect(_resume_from_overlay)
+    language_option.item_selected.connect(_on_language_selected)
+    LocalizationManager.language_changed.connect(_on_language_changed)
     _select_tower("basic")
     _show_start_overlay()
 
@@ -83,20 +92,24 @@ func release_projectile(projectile: Node2D) -> void:
         return
     projectile.reset_projectile()
 
+func _populate_language_options() -> void:
+    language_option.clear()
+    var supported: Array[String] = LocalizationManager.get_supported_languages()
+    for language in supported:
+        language_option.add_item(LocalizationManager.get_language_label(language))
+    var current_language: String = LocalizationManager.get_language()
+    var current_index: int = max(supported.find(current_language), 0)
+    language_option.select(current_index)
+
 func _tower_defs() -> Dictionary:
     var defs := {}
     for tower_type in tower_scenes.keys():
         var balance = wave_spawner.get_tower_balance(tower_type)
-        var chinese_name: String = {
-            "basic": "基础塔",
-            "slow": "减速塔",
-            "aoe": "范围塔",
-            "sniper": "狙击塔"
-        }.get(tower_type, tower_type)
+        var localized_name: String = LocalizationManager.text(String(balance.get("name_key", tower_type)))
         defs[tower_type] = {
-            "label": "%s $%d" % [chinese_name, int(balance.get("cost", 0))],
+            "label": "%s $%d" % [localized_name, int(balance.get("cost", 0))],
             "cost": int(balance.get("cost", 0)),
-            "info": String(balance.get("info", "")),
+            "info": LocalizationManager.text(String(balance.get("info_key", ""))),
             "color": {
                 "basic": Color(0.3, 0.55, 0.95, 1),
                 "slow": Color(0.9, 0.8, 0.2, 1),
@@ -106,18 +119,43 @@ func _tower_defs() -> Dictionary:
         }
     return defs
 
-func _show_start_overlay() -> void:
+func _get_level_name(level_data: Dictionary) -> String:
+    return LocalizationManager.text(String(level_data.get("name_key", "level.grassland_gate")))
+
+func _set_status(key: String, args: Array = []) -> void:
+    current_status_key = key
+    current_status_args = args.duplicate()
+    status_label.text = LocalizationManager.textf(key, args)
+
+func _refresh_text() -> void:
     var level_data: Dictionary = level_manager.get_current_level()
+    start_title_label.text = LocalizationManager.text("ui.game_title")
+    start_level_label.text = LocalizationManager.textf("ui.level", [_get_level_name(level_data)])
+    language_label.text = LocalizationManager.text("ui.language")
+    start_game_button.text = LocalizationManager.text("ui.start_game")
+    start_wave_button.text = LocalizationManager.text("ui.start_wave")
+    pause_button.text = LocalizationManager.text("ui.resume") if GameManager.game_state == "PAUSED" else LocalizationManager.text("ui.pause")
+    next_level_button.text = LocalizationManager.text("ui.next_level")
+    restart_button.text = LocalizationManager.text("ui.restart")
+    pause_label.text = LocalizationManager.text("ui.pause_title")
+    resume_button.text = LocalizationManager.text("ui.resume")
+    if result_overlay.visible:
+        result_label.text = LocalizationManager.text(current_result_key)
+    _build_tower_buttons()
+    _select_tower(selected_tower_type)
+    _refresh_ui()
+    _set_status(current_status_key, current_status_args)
+
+func _show_start_overlay() -> void:
     start_overlay.visible = true
     result_overlay.visible = false
     pause_overlay.visible = false
     next_level_button.visible = false
-    start_title_label.text = "塔防游戏"
-    start_level_label.text = "关卡: %s" % level_data.get("name", "未知")
-    status_label.text = "点击开始游戏进入战斗。"
     GameManager.set_paused(false)
     get_tree().paused = false
-    _refresh_ui()
+    current_status_key = "status.start_prompt"
+    current_status_args = []
+    _refresh_text()
 
 func _start_level(level_index: int = -1) -> void:
     if level_index >= 0:
@@ -141,8 +179,9 @@ func _start_level(level_index: int = -1) -> void:
     pause_overlay.visible = false
     game_started = true
     start_wave_button.disabled = false
-    _refresh_ui()
-    status_label.text = "为 %s 布置防线。" % level_data.get("name", "当前关卡")
+    current_status_key = "status.build_defense"
+    current_status_args = [_get_level_name(level_data)]
+    _refresh_text()
 
 func _clear_battlefield() -> void:
     for node: Node in tower_container.get_children():
@@ -182,11 +221,11 @@ func _connect_game_manager() -> void:
 
 func _refresh_ui() -> void:
     var level_data: Dictionary = level_manager.get_current_level()
-    gold_label.text = "金币: %d" % GameManager.gold
-    health_label.text = "生命: %d" % GameManager.health
-    wave_label.text = "波次: %d/%d" % [GameManager.current_wave, GameManager.TOTAL_WAVES]
-    level_label.text = "关卡: %s" % level_data.get("name", "未知")
-    pause_button.text = "继续" if GameManager.game_state == "PAUSED" else "暂停"
+    gold_label.text = LocalizationManager.textf("ui.gold", [GameManager.gold])
+    health_label.text = LocalizationManager.textf("ui.health", [GameManager.health])
+    wave_label.text = LocalizationManager.textf("ui.wave", [GameManager.current_wave, GameManager.TOTAL_WAVES])
+    level_label.text = LocalizationManager.textf("ui.level", [_get_level_name(level_data)])
+    pause_button.text = LocalizationManager.text("ui.resume") if GameManager.game_state == "PAUSED" else LocalizationManager.text("ui.pause")
     tower_info_panel.visible = true
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -209,10 +248,10 @@ func _try_build_at(world_pos: Vector2) -> void:
         return
     var data: Dictionary = defs[selected_tower_type]
     if not GameManager.can_afford(int(data.cost)):
-        status_label.text = "%s 金币不足。" % data.label
+        _set_status("status.gold_shortage", [data.label])
         return
     if not game_map.can_build_at(cell):
-        status_label.text = "该位置会堵死路径，无法建造。"
+        _set_status("status.invalid_placement")
         return
     var tower = tower_scene.instantiate()
     tower_container.add_child(tower)
@@ -233,7 +272,7 @@ func _try_build_at(world_pos: Vector2) -> void:
     for enemy: Node in get_tree().get_nodes_in_group("enemies"):
         if enemy.has_method("update_path"):
             enemy.update_path()
-    status_label.text = "%s 已建造。" % data.label
+    _set_status("status.tower_built", [data.label])
 
 func _on_start_game_pressed() -> void:
     _start_level(level_manager.current_level_index)
@@ -252,16 +291,16 @@ func _on_pause_pressed() -> void:
         return
     GameManager.set_paused(true)
     pause_overlay.visible = true
-    _refresh_ui()
+    _refresh_text()
 
 func _resume_from_overlay() -> void:
     pause_overlay.visible = false
     GameManager.set_paused(false)
-    _refresh_ui()
+    _refresh_text()
 
 func spawn_enemy(enemy_type: String) -> void:
     if not wave_spawner.enemy_scenes.has(enemy_type):
-        push_warning("未知敌人类型: %s" % enemy_type)
+        push_warning(LocalizationManager.textf("warning.unknown_enemy", [enemy_type]))
         return
     var scene: PackedScene = wave_spawner.enemy_scenes[enemy_type]
     var enemy = scene.instantiate()
@@ -271,10 +310,10 @@ func spawn_enemy(enemy_type: String) -> void:
     enemy.enemy_died.connect(func(reward: int) -> void: GameManager.add_gold(reward))
 
 func _on_wave_started(wave_number: int) -> void:
-    status_label.text = "第 %d 波开始。" % wave_number
+    _set_status("status.wave_started", [wave_number])
 
 func _on_wave_completed(wave_number: int) -> void:
-    status_label.text = "第 %d 波已清除。" % wave_number
+    _set_status("status.wave_cleared", [wave_number])
     start_wave_button.disabled = false
 
 func _on_all_waves_completed() -> void:
@@ -286,8 +325,9 @@ func _on_game_over(won: bool) -> void:
     result_overlay.visible = true
     pause_overlay.visible = false
     next_level_button.visible = won and active_level_index < level_manager.levels.size() - 1
-    result_label.text = "胜利！" if won else "失败！"
-    status_label.text = result_label.text
+    current_result_key = "status.win" if won else "status.lose"
+    result_label.text = LocalizationManager.text(current_result_key)
+    _set_status(current_result_key)
     if won and active_level_index < level_manager.levels.size() - 1:
         level_manager.current_level_index = active_level_index + 1
         level_manager.save_progress()
@@ -299,3 +339,13 @@ func _on_next_level_pressed() -> void:
 func _restart_current_level() -> void:
     result_overlay.visible = false
     _start_level(active_level_index)
+
+func _on_language_selected(index: int) -> void:
+    var supported: Array[String] = LocalizationManager.get_supported_languages()
+    if index < 0 or index >= supported.size():
+        return
+    LocalizationManager.set_language(supported[index])
+
+func _on_language_changed(_language: String) -> void:
+    _populate_language_options()
+    _refresh_text()

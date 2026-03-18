@@ -1,14 +1,14 @@
-﻿extends Node
+extends Node
 
 signal wave_started(wave_number: int)
 signal wave_completed(wave_number: int)
 signal all_waves_completed
 
 const TOWER_BALANCE := {
-    "basic": {"damage": 15.0, "range": 100.0, "speed": 1.0, "cost": 100, "info": "Balanced single-target tower."},
-    "slow": {"damage": 5.0, "range": 80.0, "speed": 0.5, "cost": 150, "info": "Applies 50% slow for 1.5s."},
-    "aoe": {"damage": 8.0, "range": 90.0, "speed": 1.5, "cost": 200, "info": "Damages enemies in a small blast radius."},
-    "sniper": {"damage": 50.0, "range": 200.0, "speed": 0.33, "cost": 250, "info": "High damage, long range, slower fire rate."}
+    "basic": {"damage": 15.0, "range": 100.0, "speed": 1.0, "cost": 100, "name_key": "tower.basic.name", "info_key": "tower.basic.info"},
+    "slow": {"damage": 5.0, "range": 80.0, "speed": 0.5, "cost": 150, "name_key": "tower.slow.name", "info_key": "tower.slow.info"},
+    "aoe": {"damage": 8.0, "range": 90.0, "speed": 1.5, "cost": 200, "name_key": "tower.aoe.name", "info_key": "tower.aoe.info"},
+    "sniper": {"damage": 50.0, "range": 200.0, "speed": 0.33, "cost": 250, "name_key": "tower.sniper.name", "info_key": "tower.sniper.info"}
 }
 
 const ENEMY_BALANCE := {

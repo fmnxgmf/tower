@@ -23,6 +23,19 @@ func run() -> Array[String]:
     if reloaded.current_level_index != reloaded.levels.size() - 1:
         failures.append("saved progress should clamp to the last available level")
 
+    var localization_script = load("res://scripts/localization_manager.gd")
+    if localization_script == null:
+        failures.append("localization_manager.gd did not load for persistence test")
+    else:
+        var localization = localization_script.new()
+        localization.current_language = "zh"
+        localization.set_language("en", true)
+        var localization_reloaded = localization_script.new()
+        localization_reloaded.load_language()
+        if localization_reloaded.get_language() != "en":
+            failures.append("saved language should reload as English")
+        localization_reloaded.set_language("zh", true)
+
     var game_manager = load("res://scripts/game_manager.gd").new()
     game_manager.reset()
     game_manager.finish_level()
