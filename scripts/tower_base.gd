@@ -17,6 +17,9 @@ var slow_effect_duration: float = 0.0
 var splash_radius: float = 0.0
 var use_projectile_attack: bool = true
 var attack_count: int = 0
+var effect_time_left: float = 0.0
+var effect_duration: float = 0.18
+var effect_origin: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	configure_attack(tower_kind)
@@ -47,6 +50,9 @@ func configure_attack(new_tower_kind: String) -> void:
 
 func _process(delta: float) -> void:
 	cooldown = max(cooldown - delta, 0.0)
+	if effect_time_left > 0.0:
+		effect_time_left = max(effect_time_left - delta, 0.0)
+		queue_redraw()
 	if cooldown > 0.0:
 		return
 	var target := _find_target()
@@ -73,6 +79,9 @@ func _find_target() -> Node2D:
 func _attack(target: Node2D) -> void:
 	attack_count += 1
 	if splash_radius > 0.0:
+		effect_origin = to_local(target.global_position)
+		effect_time_left = effect_duration
+		queue_redraw()
 		var aoe_range_sq := splash_radius * splash_radius
 		for enemy in get_tree().get_nodes_in_group("enemies"):
 			if is_instance_valid(enemy) and not bool(enemy.get("is_dying")) and enemy.global_position.distance_squared_to(target.global_position) <= aoe_range_sq:
@@ -114,6 +123,7 @@ func get_attack_debug_state() -> Dictionary:
 		"splash_radius": splash_radius,
 		"use_projectile_attack": use_projectile_attack,
 		"attack_count": attack_count,
+		"effect_time_left": effect_time_left,
 		"has_projectile_container": projectile_container != null,
 		"has_pool_owner": projectile_pool_owner != null,
 		"target_found": _find_target() != null
@@ -121,3 +131,11 @@ func get_attack_debug_state() -> Dictionary:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2(-14, -14), Vector2(28, 28)), tower_color, true)
+	if splash_radius <= 0.0 or effect_time_left <= 0.0:
+		return
+	var progress: float = effect_time_left / max(effect_duration, 0.001)
+	var pulse_radius: float = splash_radius * (1.0 + (1.0 - progress) * 0.18)
+	var fill_color := Color(1.0, 0.55, 0.3, 0.12 * progress)
+	var ring_color := Color(1.0, 0.82, 0.45, 0.55 * progress)
+	draw_circle(effect_origin, pulse_radius, fill_color)
+	draw_arc(effect_origin, pulse_radius, 0.0, TAU, 32, ring_color, 3.0)

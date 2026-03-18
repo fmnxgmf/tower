@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 
 func run() -> Array[String]:
     var failures: Array[String] = []
@@ -55,5 +55,49 @@ func run() -> Array[String]:
             failures.append("expected basic tower balance data")
         if tank_enemy.is_empty():
             failures.append("expected tank enemy balance data")
+
+    var tree := Engine.get_main_loop() as SceneTree
+    var test_root := Node2D.new()
+    tree.root.add_child(test_root)
+    var aoe_tower_scene = load("res://scenes/towers/aoe_tower.tscn")
+    var enemy_script = load("res://scripts/enemy_base.gd")
+    if aoe_tower_scene == null:
+        failures.append("aoe_tower.tscn did not load")
+    elif enemy_script == null:
+        failures.append("enemy_base.gd did not load for aoe test")
+    else:
+        var aoe_tower = aoe_tower_scene.instantiate()
+        var primary_enemy = enemy_script.new()
+        var splash_enemy = enemy_script.new()
+        test_root.add_child(aoe_tower)
+        test_root.add_child(primary_enemy)
+        test_root.add_child(splash_enemy)
+
+        aoe_tower.global_position = Vector2.ZERO
+        aoe_tower.damage = 12.0
+        aoe_tower.attack_range = 100.0
+        aoe_tower.configure_attack("aoe")
+
+        primary_enemy.max_health = 30.0
+        primary_enemy.current_health = 30.0
+        primary_enemy.global_position = Vector2(20, 0)
+        primary_enemy.add_to_group("enemies")
+
+        splash_enemy.max_health = 30.0
+        splash_enemy.current_health = 30.0
+        splash_enemy.global_position = Vector2(45, 0)
+        splash_enemy.add_to_group("enemies")
+
+        aoe_tower._attack(primary_enemy)
+        var debug_state: Dictionary = aoe_tower.get_attack_debug_state()
+        if primary_enemy.current_health >= 30.0:
+            failures.append("aoe tower should damage its primary target")
+        if splash_enemy.current_health >= 30.0:
+            failures.append("aoe tower should damage nearby enemies in splash radius")
+        if float(debug_state.get("effect_time_left", 0.0)) <= 0.0:
+            failures.append("aoe tower should expose an active visual effect after attacking")
+
+    if is_instance_valid(test_root):
+        test_root.queue_free()
 
     return failures
